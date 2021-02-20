@@ -27,11 +27,12 @@ language where the inputs are discrete (vocabulary).
 
 Given the path to [UCF-101's](https://www.crcv.ucf.edu/data/UCF101.php) 
 raw dataset folder, prepare the dataset in a standardized format as follows:
+(e.g. Download the dataset. Add a folder in the base directory with name **UCF101** and put the unzipped dataset in this folder.)
 
 ```bash
 $ python3 prepare_ucf101.py \
--v /home/axe/Datasets/UCF_101/raw/videos \
--o /home/axe/Datasets/UCF_101 \
+-v ./UCF101/UCF-101 \
+-o ./UCF101 \
 -s 0.8 -fps 1
 ```
 
@@ -72,10 +73,18 @@ following format:
 
 ```bash
 $ python3 prepare_data.py -s train \
--f /home/axe/Datasets/UCF_101/frames_1_fps \
--j /home/axe/Datasets/UCF_101/train_ucf101.json \
--o /home/axe/Datasets/UCF_101/data_res18_fps_1 \
--m resnet18 -bs 1024 -nw 4
+-f ./UCF101/frames_fps_1 \
+-j ./UCF101/train_ucf101.json \
+-o ./UCF101/data_res18_fps_1 \
+-m resnet18 -bs 800 -nw 4
+```
+
+```bash
+$ python prepare_data.py -s val \
+-f ./UCF101/frames_fps_1 \
+-j ./UCF101/val_ucf101.json \
+-o ./UCF101/data_res18_fps_1 \
+-m resnet18 -bs 800 -nw 4
 ```
 
 The files are stored in output dir `-o`. <br>
@@ -137,10 +146,10 @@ Run the following script for training:
 ```bash
 $ python3 main.py --mode train --expt_dir ./results_log  \
 --expt_name BERT --model bert \
---data_dir ~/Datasets/UCF_101/processed_fps_1_res18 \
+--data_dir ./UCF101/data_res18_fps_1 \
 --run_name res18_1fps_lyr_1_bs_256_lr_1e4 \
 --num_layers 1 --batch_size 256 --epochs 300 \
---gpu_id 1 --opt_lvl 1  --num_workers 4 --lr 1e-4
+--gpu_id 0 --opt_lvl 1  --num_workers 4 --lr 1e-4
 ```
 Specify `--model_ckpt` (filename.pth) to load model checkpoint from disk <i>(resume training/inference)</i> <br>
 
