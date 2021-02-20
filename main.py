@@ -25,39 +25,46 @@ def main():
     parser = argparse.ArgumentParser(description='Video + QA setup for Social-IQ')
 
     # Experiment params
-    parser.add_argument('--mode',           type=str,       help='train or test mode', required=True, choices=['train', 'test'])
-    parser.add_argument('--expt_dir',       type=str,       help='root directory to save model & summaries', required=True)
-    parser.add_argument('--expt_name',      type=str,       help='expt_dir/expt_name: organize experiments', required=True)
-    parser.add_argument('--run_name',       type=str,       help='expt_dir/expt_name/run_name: organize training runs', required=True)
+    parser.add_argument('--mode', type=str, help='train or test mode', required=True, choices=['train', 'test'])
+    parser.add_argument('--expt_dir', type=str, help='root directory to save model & summaries', required=True)
+    parser.add_argument('--expt_name', type=str, help='expt_dir/expt_name: organize experiments', required=True)
+    parser.add_argument('--run_name', type=str, help='expt_dir/expt_name/run_name: organize training runs',
+                        required=True)
 
     # Model params
-    parser.add_argument('--model',          type=str,       help='RNN vs Transformer', required=True, choices=['bilstm', 'bert'])
-    parser.add_argument('--config_name',    type=str,       help='transformers pre-trained config name', default='bert-base-uncased')
-    parser.add_argument('--use_pretrained', type=str2bool,  help='use pre-trained transformer', default='true')
-    parser.add_argument('--num_layers',     type=int,       help='no. of layers in the RNN/Transformer', default=1)
-    parser.add_argument('--num_cls',        type=int,       help='no. of class labels', default=101)
-    parser.add_argument('--model_ckpt',     type=str,       help='resume train / perform inference; e.g. model_100.pth')
+    parser.add_argument('--model', type=str, help='RNN vs Transformer', required=True, choices=['bilstm', 'bert'])
+    parser.add_argument('--config_name', type=str, help='transformers pre-trained config name',
+                        default='bert-base-uncased')
+    parser.add_argument('--use_pretrained', type=str2bool, help='use pre-trained transformer', default='true')
+    parser.add_argument('--num_layers', type=int, help='no. of layers in the RNN/Transformer', default=1)
+    parser.add_argument('--num_cls', type=int, help='no. of class labels', default=116)
+    parser.add_argument('--model_ckpt', type=str, help='resume train / perform inference; e.g. model_100.pth')
 
     # Data params
-    parser.add_argument('--data_dir',       type=str,       help='root dir containing all delete files', required=True)
-    parser.add_argument('--pred_output',    type=str,       help='prediction file (label, pred) pair on each line')
+    parser.add_argument('--data_dir', type=str, help='root dir containing all delete files', required=True)
+    parser.add_argument('--pred_output', type=str, help='prediction file (label, pred) pair on each line')
 
     # Training params
-    parser.add_argument('--batch_size',     type=int,       help='batch size', default=8)
-    parser.add_argument('--epochs',         type=int,       help='number of epochs', default=50)
-    parser.add_argument('--lr',             type=float,     help='learning rate', default=1e-4)
-    parser.add_argument('--log_interval',   type=int,       help='interval size for logging training summaries', default=100)
-    parser.add_argument('--save_interval',  type=int,       help='save model after `n` weight update steps', default=1000)
-    parser.add_argument('--val_size',       type=int,       help='validation set size for evaluating accuracy', default=2000)
-    parser.add_argument('--use_val',        type=str2bool,  help='use validation set & metrics', default='true')
+    parser.add_argument('--batch_size', type=int, help='batch size', default=8)
+    parser.add_argument('--epochs', type=int, help='number of epochs', default=50)
+    parser.add_argument('--lr', type=float, help='learning rate', default=1e-4)
+    parser.add_argument('--log_interval', type=int, help='interval size for logging training summaries', default=100)
+    parser.add_argument('--save_interval', type=int, help='save model after `n` weight update steps', default=1000)
+    parser.add_argument('--val_size', type=int, help='validation set size for evaluating accuracy', default=2000)
+    parser.add_argument('--use_val', type=str2bool, help='use validation set & metrics', default='true')
 
     # GPU params
-    parser.add_argument('--gpu_id',         type=int,       help='cuda:gpu_id (0,1,2,..) if num_gpus = 1', default=0)
-    parser.add_argument('--opt_lvl',        type=int,       help='Automatic-Mixed Precision: opt-level (O_)', default=1, choices=[0, 1, 2, 3])
+    parser.add_argument('--gpu_id', type=int, help='cuda:gpu_id (0,1,2,..) if num_gpus = 1', default=0)
+    parser.add_argument('--opt_lvl', type=int, help='Automatic-Mixed Precision: opt-level (O_)', default=1,
+                        choices=[0, 1, 2, 3])
     # parser.add_argument('--num_gpus',    type=int,   help='number of GPUs to use for training', default=1)
 
     # Misc params
-    parser.add_argument('--num_workers',    type=int,       help='number of worker threads for Dataloader', default=1)
+    parser.add_argument('--num_workers', type=int, help='number of worker threads for Dataloader', default=1)
+
+    parser.add_argument('--step1', default=75, type=int, help='nb epochs before first lr decrease')
+    parser.add_argument('--step2', default=150, type=int, help='nb epochs before second lr decrease')
+    parser.add_argument('--step3', default=225, type=int, help='nb epochs before third lr decrease')
 
     args = parser.parse_args()
 
@@ -164,6 +171,12 @@ def main():
         start_time = time()
 
         for epoch in range(start_epoch, start_epoch + n_epochs):
+
+            # optimizer = adjust_learning_rate(optimizer, epoch, args)
+            #
+            # for param_group in optimizer.param_groups:
+            #     print(param_group['lr'])
+
             for batch_data in train_loader:
                 # Load to device, for the list of batch tensors
                 batch_data = [d.to(device) for d in batch_data]
@@ -193,7 +206,7 @@ def main():
                         model.train()
 
                         log_msg = 'Validation Accuracy: {:.2f} %  || Validation Loss: {:.4f}'.format(
-                                validation_metrics['accuracy'], validation_metrics['loss'])
+                            validation_metrics['accuracy'], validation_metrics['loss'])
 
                         print_and_log(log_msg, log_file)
 
@@ -211,7 +224,7 @@ def main():
                     time_left = total_time - time_elapsed
 
                     log_msg = 'Epoch [{}/{}], Step [{}/{}], Loss: {:.4f} | time elapsed: {:.2f}h | time left: {:.2f}h'.format(
-                            epoch, n_epochs, curr_step, steps_per_epoch, loss.item(), time_elapsed, time_left)
+                        epoch, n_epochs, curr_step, steps_per_epoch, loss.item(), time_elapsed, time_left)
 
                     print_and_log(log_msg, log_file)
 
@@ -254,6 +267,23 @@ def main():
         pass
 
 
+def adjust_learning_rate(optimizer, epoch, args):
+    """Sets the learning rate to the initial LR decayed by 10 every X epochs"""
+    if epoch >= args.step3:
+        lr = args.lr * 0.001
+    elif epoch >= args.step2:
+        lr = args.lr * 0.01
+    elif epoch >= args.step1:
+        lr = args.lr * 0.1
+    else:
+        lr = args.lr
+
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+    return optimizer
+
+
 def init_dataset_configs(model_name, args):
     """
     Given model, sets up the dataset config & class.
@@ -261,7 +291,7 @@ def init_dataset_configs(model_name, args):
     :param model_name: e.g. bilstm, bert, etc.
     :return: config dict & dataset class
     """
-    config = {'max_video_len': None}    # inferred from train_dataset
+    config = {'max_video_len': None}  # inferred from train_dataset
 
     # If transformer, insert additional configs
     if 'bert' in model_name:

@@ -230,7 +230,7 @@ if __name__ == '__main__':
         j += video_len
 
     # Delete the temp file
-    os.remove(emb_temp_file)
+    #os.remove(emb_temp_file)
 
     print('The embeddings memmap file saved at {}'.format(embeddings_file))
 

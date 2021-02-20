@@ -41,9 +41,11 @@ def _filename(path):
     :param str path: path to video file
     :return: file name (containing class)
     """
-    filename = path.split('/')[-2:]
+    filename = path.split('\\')[-2:]
 
     filename = '/'.join(filename)
+
+    #print(filename)
 
     return filename
 
@@ -139,9 +141,13 @@ if __name__ == '__main__':
 
     # Read all action class names
     classes = sorted(glob.glob(os.path.join(args.video_dir, '*')))
-    classes = [cls.split('/')[-1] for cls in classes]
+    #print(classes)
 
-    assert len(classes) == 101, 'The UCF-101 dataset expects total 101 classes, but {} found!'.format(len(classes))
+    classes = [cls.split('\\')[-1] for cls in classes]
+
+    print(classes)
+
+    # assert len(classes) == 101, 'The UCF-101 dataset expects total 101 classes, but {} found!'.format(len(classes))
 
     # For each class in the videos dir, perform train-val split
     class2idx = {cls: i for i, cls in enumerate(classes)}
@@ -179,7 +185,11 @@ if __name__ == '__main__':
     for i, sample in enumerate(dataset):
         filename = sample[0]
 
+        #print(filename)
+
         video_path = os.path.join(args.video_dir, filename)
+
+        #print(video_path)
 
         # save frames
         save_video_frames(video_path, args.frame_rate, save_frames_dir)

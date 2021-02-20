@@ -30,7 +30,7 @@ class ConvEmbeddingDataset(Dataset):
         json_data = self._read_json(json_file)
 
         # DataFrame
-        self.data_df = pd.read_json(json_data['delete'])
+        self.data_df = pd.read_json(json_data['data'])
 
         # Setup Video Data
         memmap_shape = tuple(json_data['memmap_shape'])     # [total_videos, max_video_len, emb_dim]

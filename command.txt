@@ -1,0 +1,8 @@
+python prepare_ucf101.py -v ./UCF101/UCF-101 -o ./UCF101 -s 0.8 -fps 1
+
+
+python prepare_data.py -s train -f ./UCF101/frames_fps_1 -j ./UCF101/train_ucf101.json -o ./UCF101/data_res18_fps_1 -m resnet18 -bs 800 -nw 4
+
+python prepare_data.py -s val -f ./UCF101/frames_fps_1 -j ./UCF101/val_ucf101.json -o ./UCF101/data_res18_fps_1 -m resnet18 -bs 800 -nw 4
+
+python main.py --mode train --expt_dir ./results_log --expt_name BERT --model bert --data_dir ./UCF101/data_res18_fps_1 --run_name res18_1fps_lyr_1_bs_256_lr_1e4 --num_layers 1 --batch_size 256 --epochs 300 --gpu_id 0 --opt_lvl 1  --num_workers 4 --lr 1e-4

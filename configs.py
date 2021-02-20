@@ -8,10 +8,10 @@ from transformers import BertTokenizer, RobertaTokenizer, AlbertTokenizer, Disti
 from transformers import BertConfig, RobertaConfig, AlbertConfig, DistilBertConfig
 from transformers import BertModel, RobertaModel, AlbertModel, DistilBertModel
 from torchvision.models import resnet18, resnet152, densenet161
-from transformers.modeling_bert import BertEmbeddings
-from transformers.modeling_roberta import RobertaEmbeddings
-from transformers.modeling_albert import AlbertEmbeddings
-from transformers.modeling_distilbert import Embeddings as DistillBertEmbeddings
+from transformers.models.bert.modeling_bert import BertEmbeddings
+from transformers.models.roberta.modeling_roberta import RobertaEmbeddings
+from transformers.models.albert.modeling_albert import AlbertEmbeddings
+from transformers.models.distilbert.modeling_distilbert import Embeddings as DistillBertEmbeddings
 
 MODEL_NAMES = ['bert', 'roberta', 'albert', 'distilbert']
 CNN_NAMES = ['resnet18', 'resnet152', 'densenet161']
